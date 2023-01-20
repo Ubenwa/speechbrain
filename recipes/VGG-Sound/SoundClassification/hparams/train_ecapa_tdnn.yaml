@@ -4,7 +4,7 @@
 # ################################
 
 # Basic parameters
-seed: 1986
+seed: 1987
 __set_seed: !apply:torch.manual_seed [!ref <seed>]
 output_folder: !ref results/ecapa/<seed>
 save_folder: !ref <output_folder>/save
@@ -12,6 +12,7 @@ train_log: !ref <output_folder>/train_log.txt
 
 # Data files
 data_folder: /home/agorin/datasets/VGG-Sound  # e.g. /path/to/Voxceleb
+rir_folder: /home/agorin/datasets/openrir
 train_annotation: !ref <data_folder>/train.csv
 valid_annotation: !ref <data_folder>/val.csv
 test_annotation: !ref <data_folder>/test.csv
@@ -19,13 +20,12 @@ test_annotation: !ref <data_folder>/test.csv
 ckpt_interval_minutes: 15 # save checkpoint every N min
 
 # Training parameters
-number_of_epochs: 20
-batch_size: 32
+number_of_epochs: 100
+batch_size: 16
 lr: 0.001
-lr_final: 0.0001
 step_size: 65000
 sample_rate: 16000
-sentence_len: 3.0 # seconds
+sentence_len: 4.0 # seconds
 shuffle: True
 random_chunk: True
 
@@ -41,12 +41,12 @@ out_n_neurons: 308
 train_dataloader_options:
     num_workers: 4
     shuffle: True
-    batch_size: 32
+    batch_size: !ref <batch_size>
 
 val_dataloader_options:
     num_workers: 1
     shuffle: True
-    batch_size: 32
+    batch_size: !ref <batch_size>
 
 # Functions
 compute_features: !new:speechbrain.lobes.features.Fbank
@@ -73,12 +73,28 @@ epoch_counter: !new:speechbrain.utils.epoch_loop.EpochCounter
 
 
 augment_wavedrop: !new:speechbrain.lobes.augment.TimeDomainSpecAugment
+    perturb_prob: 0.0
+    drop_freq_prob: 1.0
+    drop_chunk_prob: 1.0
     sample_rate: !ref <sample_rate>
-    speeds: [100]
 
 augment_speed: !new:speechbrain.lobes.augment.TimeDomainSpecAugment
+    perturb_prob: 1.0
+    drop_freq_prob: 0.0
+    drop_chunk_prob: 0.0
     sample_rate: !ref <sample_rate>
     speeds: [95, 100, 105]
+
+
+add_noise: !new:speechbrain.lobes.augment.EnvCorrupt
+    openrir_folder: !ref <rir_folder>
+    openrir_max_noise_len: 4.0  # seconds
+    reverb_prob: 0.0
+    noise_prob: 1.0
+    noise_snr_low: 15
+    noise_snr_high: 25
+    rir_scale_factor: 1.0
+
 
 # Definition of the augmentation pipeline.
 # If concat_augment = False, the augmentation techniques are applied
@@ -88,6 +104,9 @@ augment_speed: !new:speechbrain.lobes.augment.TimeDomainSpecAugment
 augment_pipeline: [
     !ref <augment_wavedrop>,
     !ref <augment_speed>,
+    #!ref <add_rev>,
+    !ref <add_noise>,
+    #!ref <add_rev_noise>
 ]
 concat_augment: True
 
@@ -99,6 +118,9 @@ modules:
     compute_features: !ref <compute_features>
     augment_wavedrop: !ref <augment_wavedrop>
     augment_speed: !ref <augment_speed>
+    #add_rev: !ref <add_rev>
+    add_noise: !ref <add_noise>
+    #add_rev_noise: !ref <add_rev_noise>
     embedding_model: !ref <embedding_model>
     classifier: !ref <classifier>
     mean_var_norm: !ref <mean_var_norm>
@@ -112,12 +134,12 @@ compute_cost: !new:speechbrain.nnet.losses.LogSoftmaxWrapper
 
 opt_class: !name:torch.optim.Adam
     lr: !ref <lr>
-    weight_decay: 0.000002
+    weight_decay: 0
 
-lr_annealing: !new:speechbrain.nnet.schedulers.LinearScheduler
-    initial_value: !ref <lr>
-    final_value: !ref <lr_final>
-    epoch_count: !ref <number_of_epochs>
+lr_annealing: !new:speechbrain.nnet.schedulers.ReduceLROnPlateau
+    factor: 0.5
+    patience: 1
+    dont_halve_until_epoch: 3
 
 # Logging + checkpoints
 train_logger: !new:speechbrain.utils.train_logger.FileTrainLogger
