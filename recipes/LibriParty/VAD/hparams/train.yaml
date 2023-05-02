@@ -41,7 +41,7 @@ skip_prep: False # Skip data preparation
 N_epochs: 100
 lr: 1.0
 lr_final: 0.1
-batch_size: 2
+batch_size: 32
 example_length: 5 # in seconds
 sample_rate: 16000
 time_resolution: 0.01 # in seconds

@@ -17,10 +17,12 @@ Authors
 # import pandas as pd
 # import json
 import logging
+import torchaudio
 
 # from collections import OrderedDict
 
 import deeplake
+from torch import from_numpy
 
 # import json
 
@@ -126,6 +128,35 @@ def create_json_structure_ubenwa(ds):
         json["session_" + str(rec_id)] = {"rec_id": rec_id, "cry": list_cry}
     return json
 
+
+def read_audio_ubenwa(ds: deeplake.Dataset, record):
+    """General audio loading for Ubenwa data from deeplake dataset.
+
+    Expected use case is in conjunction with Datasets
+    specified by JSON.
+
+
+    Arguments
+    ----------
+    ds : deeplake.Dataset
+        deeplake dataset or a view form the dataset,
+    rec_id : str,
+        Record id of the sample to get the audio data from deeplake
+
+
+    Returns
+    -------
+    torch.Tensor
+        1-channel: audio tensor with shape: `(samples, )`
+
+
+    """
+    # filter based on the rec_id
+    sample = ds.filter(lambda sample: sample.record_id.data()['value'] == record["rec_id"], progressbar = False)
+    raw_audio = sample["raw_audio"].numpy().flatten()
+    audio = from_numpy(raw_audio).float() / 32768.0
+
+    return audio
 
 def prepare_ubenwa(
     dataset_path: str = "/Users/sajjadabdoli/Documents/Ubenwa/data/ub-processed/seg-191101-230303/",

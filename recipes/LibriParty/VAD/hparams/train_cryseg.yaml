@@ -20,7 +20,7 @@ save_folder: !ref <output_folder>/save
 train_log: !ref <output_folder>/train_log.txt
 
 # LibriParty (main data)
-data_folder: /Users/sajjadabdoli/Documents/Ubenwa/data/ub-processed/seg-191101-230303/ # e.g. /path/to/LibriParty
+data_folder: /Users/sajjadabdoli/Documents/Ubenwa/data/ub-processed/seg-191101-230303 # e.g. /path/to/LibriParty
 dataset_path: /Users/sajjadabdoli/Documents/Ubenwa/data/ub-processed/seg-191101-230303/
 
 # Additional data (for augmentation)
@@ -88,29 +88,29 @@ output_neurons: 1
 #    noise_snr_low: 5
 #    noise_snr_high: 15
 
-add_noise_musan: !new:speechbrain.lobes.augment.EnvCorrupt
-    noise_csv: !ref <noise_csv>
-    babble_prob: 0.0
-    reverb_prob: 0.0
-    noise_prob: 1.0
-    noise_snr_low: -15
-    noise_snr_high: -20
+#add_noise_musan: !new:speechbrain.lobes.augment.EnvCorrupt
+#    noise_csv: !ref <noise_csv>
+#    babble_prob: 0.0
+#    reverb_prob: 0.0
+#    noise_prob: 1.0
+#    noise_snr_low: -15
+#    noise_snr_high: -20
 
-add_music_musan: !new:speechbrain.lobes.augment.EnvCorrupt
-    noise_csv: !ref <music_csv>
-    babble_prob: 0.0
-    reverb_prob: 0.0
-    noise_prob: 1.0
-    noise_snr_low: -15
-    noise_snr_high: -20
+#add_music_musan: !new:speechbrain.lobes.augment.EnvCorrupt
+#    noise_csv: !ref <music_csv>
+#    babble_prob: 0.0
+#    reverb_prob: 0.0
+#    noise_prob: 1.0
+#    noise_snr_low: -15
+#    noise_snr_high: -20
 
-add_speech_musan: !new:speechbrain.lobes.augment.EnvCorrupt
-    noise_csv: !ref <speech_csv>
-    babble_prob: 0.0
-    reverb_prob: 0.0
-    noise_prob: 1.0
-    noise_snr_low: -15
-    noise_snr_high: -20
+#add_speech_musan: !new:speechbrain.lobes.augment.EnvCorrupt
+#    noise_csv: !ref <speech_csv>
+#    babble_prob: 0.0
+#    reverb_prob: 0.0
+#    noise_prob: 1.0
+#    noise_snr_low: -15
+#    noise_snr_high: -20
 
 # add_speech_multilang: !new:speechbrain.lobes.augment.EnvCorrupt
 #    noise_csv: !ref <multilang_speech_csv>

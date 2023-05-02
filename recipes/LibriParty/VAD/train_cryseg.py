@@ -23,6 +23,8 @@ Authors
 """
 
 import sys
+
+import deeplake
 import torch
 import logging
 import numpy as np
@@ -30,6 +32,8 @@ import speechbrain as sb
 from hyperpyyaml import load_hyperpyyaml
 from speechbrain.utils.distributed import run_on_main
 from data_augment import augment_data
+
+from ubenwa_prepare import read_audio_ubenwa
 
 logger = logging.getLogger(__name__)
 
@@ -44,16 +48,16 @@ class VADBrain(sb.Brain):
         targets, lens_targ = batch.target
         self.targets = targets
 
-        if stage == sb.Stage.TRAIN:
-            wavs, targets, lens = augment_data(
-                self.noise_datasets,
-                self.speech_datasets,
-                wavs,
-                targets,
-                lens_targ,
-            )
-            self.lens = lens
-            self.targets = targets
+        #if stage == sb.Stage.TRAIN:
+        #    wavs, targets, lens = augment_data(
+        #        self.noise_datasets,
+        #        self.speech_datasets,
+        #        wavs,
+        #        targets,
+        #        lens_targ,
+        #    )
+        #    self.lens = lens
+        #    self.targets = targets
 
         # From wav input to output binary prediciton
         feats = self.hparams.compute_features(wavs)
@@ -91,16 +95,16 @@ class VADBrain(sb.Brain):
         "Gets called when a stage (either training, validation, test) starts."
         self.train_metrics = self.hparams.train_stats()
 
-        self.noise_datasets = [
-            self.hparams.add_noise,
-            self.hparams.add_noise_musan,
-            self.hparams.add_music_musan,
-        ]
-        self.speech_datasets = [
-            self.hparams.add_speech_musan,
-            self.hparams.add_speech_musan,
-            self.hparams.add_speech_musan,
-        ]
+        #self.noise_datasets = [
+        #    self.hparams.add_noise,
+        #    self.hparams.add_noise_musan,
+        #    self.hparams.add_music_musan,
+        #]
+        #self.speech_datasets = [
+        #    self.hparams.add_speech_musan,
+        #    self.hparams.add_speech_musan,
+        #    self.hparams.add_speech_musan,
+        #]
 
         if stage != sb.Stage.TRAIN:
             self.valid_metrics = self.hparams.test_stats()
@@ -152,26 +156,34 @@ def dataio_prep(hparams):
         replacements={"data_root": data_folder},
     )
 
+    ds = deeplake.load(
+        hparams["dataset_path"] + "deeplake/",
+        read_only=True,
+        memory_cache_size=8192,
+        local_cache_size=20480,
+    )
+
     # 2. Define audio pipeline:
-    @sb.utils.data_pipeline.takes("wav")
+    @sb.utils.data_pipeline.takes("record")
     @sb.utils.data_pipeline.provides("signal")
-    def audio_pipeline(wav):
-        sig = sb.dataio.dataio.read_audio(wav)
+    def audio_pipeline(record):
+        sig = read_audio_ubenwa(ds, record)
         return sig
 
     # 3. Define text pipeline:
-    @sb.utils.data_pipeline.takes("speech")
+    @sb.utils.data_pipeline.takes("cry")
     @sb.utils.data_pipeline.provides("target")
-    def vad_targets(speech, hparams=hparams):
+    def vad_targets(cry, hparams=hparams):
+        print ()
         boundaries = (
             [
                 (
                     int(interval[0] / hparams["time_resolution"]),
                     int(interval[1] / hparams["time_resolution"]),
                 )
-                for interval in speech
+                for interval in cry
             ]
-            if len(speech) > 0
+            if len(cry) > 0
             else []
         )
         gt = torch.zeros(
@@ -191,7 +203,7 @@ def dataio_prep(hparams):
     sb.dataio.dataset.add_dynamic_item(datasets, audio_pipeline)
     sb.dataio.dataset.add_dynamic_item(datasets, vad_targets)
     sb.dataio.dataset.set_output_keys(
-        datasets, ["id", "signal", "target", "speech"]
+        datasets, ["id", "signal", "target", "cry"]
     )
 
     # Split dataset
@@ -235,15 +247,6 @@ if __name__ == "__main__":
     # Dataset IO prep: creating Dataset objects
     train_data, valid_data, test_data = dataio_prep(hparams)
 
-    print(train_data)
-    print(valid_data)
-    print(test_data)
-
-    """"
-
-    # Dataset IO prep: creating Dataset objects
-    train_data, valid_data, test_data = dataio_prep(hparams)
-
     # Trainer initialization
     vad_brain = VADBrain(
         modules=hparams["modules"],
@@ -269,4 +272,3 @@ if __name__ == "__main__":
         test_loader_kwargs=hparams["test_dataloader_opts"],
     )
 
-    """
