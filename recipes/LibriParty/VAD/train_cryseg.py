@@ -48,7 +48,7 @@ class VADBrain(sb.Brain):
         targets, lens_targ = batch.target
         self.targets = targets
 
-        #if stage == sb.Stage.TRAIN:
+        # if stage == sb.Stage.TRAIN:
         #    wavs, targets, lens = augment_data(
         #        self.noise_datasets,
         #        self.speech_datasets,
@@ -95,16 +95,16 @@ class VADBrain(sb.Brain):
         "Gets called when a stage (either training, validation, test) starts."
         self.train_metrics = self.hparams.train_stats()
 
-        #self.noise_datasets = [
+        # self.noise_datasets = [
         #    self.hparams.add_noise,
         #    self.hparams.add_noise_musan,
         #    self.hparams.add_music_musan,
-        #]
-        #self.speech_datasets = [
+        # ]
+        # self.speech_datasets = [
         #    self.hparams.add_speech_musan,
         #    self.hparams.add_speech_musan,
         #    self.hparams.add_speech_musan,
-        #]
+        # ]
 
         if stage != sb.Stage.TRAIN:
             self.valid_metrics = self.hparams.test_stats()
@@ -174,7 +174,7 @@ def dataio_prep(hparams):
     @sb.utils.data_pipeline.takes("cry")
     @sb.utils.data_pipeline.provides("target")
     def vad_targets(cry, hparams=hparams):
-        print ()
+        print()
         boundaries = (
             [
                 (
@@ -271,4 +271,3 @@ if __name__ == "__main__":
         min_key="loss",
         test_loader_kwargs=hparams["test_dataloader_opts"],
     )
-

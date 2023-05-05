@@ -152,11 +152,17 @@ def read_audio_ubenwa(ds: deeplake.Dataset, record):
 
     """
     # filter based on the rec_id
-    sample = ds.filter(lambda sample: sample.record_id.data()['value'] == record["rec_id"], progressbar = False)
+    list_of_rec_ids = ds[:].record_id.data()["value"]
+    rec_index = list_of_rec_ids.index(str(record["rec_id"]))
+    sample = ds[rec_index]
+
+    # rec_dict = {"Index": [], "Rec_id": []}
+    # sample = ds.filter(lambda sample: sample.record_id.data()['value'] == record["rec_id"], progressbar = False)
     raw_audio = sample["raw_audio"].numpy().flatten()
     audio = from_numpy(raw_audio).float() / 32768.0
 
     return audio
+
 
 def prepare_ubenwa(
     dataset_path: str = "/Users/sajjadabdoli/Documents/Ubenwa/data/ub-processed/seg-191101-230303/",
