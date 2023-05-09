@@ -15,7 +15,7 @@
 # Seed and output folders
 seed: 1986
 __set_seed: !apply:torch.manual_seed [!ref <seed>]
-output_folder: !ref results/VAD_CRDNN/<seed>
+output_folder: !ref /Users/sajjadabdoli/Documents/Ubenwa/speechbrain/recipes/CrySeg/results/VAD_CRDNN/<seed>
 save_folder: !ref <output_folder>/save
 train_log: !ref <output_folder>/train_log.txt
 
@@ -43,7 +43,7 @@ N_epochs: 100
 lr: 1.0
 lr_final: 0.1
 batch_size: 32
-example_length: 10 # in seconds
+example_length: 3 # in seconds
 sample_rate: 16000
 time_resolution: 0.01 # in seconds
 train_dataloader_opts:
@@ -63,8 +63,8 @@ n_mels: 40
 # cnn_blocks: 2
 # cnn_channels: (16, 16)
 # cnn_kernelsize: (3, 3)
-rnn_layers: 2
-rnn_neurons: 32
+rnn_layers: 1
+rnn_neurons: 10
 # rnn_bidirectional: True
 # dnn_blocks: 1
 dnn_neurons: 16
@@ -109,7 +109,7 @@ output_neurons: 1
 #    babble_prob: 0.0
 #    reverb_prob: 0.0
 #    noise_prob: 1.0
-#    noise_snr_low: -15
+#    noise_snr_low: -15x
 #    noise_snr_high: -20
 
 # add_speech_multilang: !new:speechbrain.lobes.augment.EnvCorrupt

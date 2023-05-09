@@ -23,6 +23,8 @@ import torchaudio
 
 import deeplake
 from torch import from_numpy
+import sys
+sys.path.insert(1, '/Users/sajjadabdoli/Documents/Ubenwa/speechbrain/recipes/LibriParty/VAD')
 
 # import json
 
@@ -156,11 +158,10 @@ def read_audio_ubenwa(ds: deeplake.Dataset, record):
     rec_index = list_of_rec_ids.index(str(record["rec_id"]))
     sample = ds[rec_index]
 
-    # rec_dict = {"Index": [], "Rec_id": []}
-    # sample = ds.filter(lambda sample: sample.record_id.data()['value'] == record["rec_id"], progressbar = False)
-    raw_audio = sample["raw_audio"].numpy().flatten()
-    audio = from_numpy(raw_audio).float() / 32768.0
 
+    # sample = ds.filter(lambda sample: sample.record_id.data()['value'] == record["rec_id"], progressbar = False)
+    raw_audio = sample["raw_audio"].numpy().flatten()[record["start"]:record["stop"]]
+    audio = from_numpy(raw_audio).float() / 32768.0
     return audio
 
 

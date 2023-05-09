@@ -31,7 +31,6 @@ import numpy as np
 import speechbrain as sb
 from hyperpyyaml import load_hyperpyyaml
 from speechbrain.utils.distributed import run_on_main
-from data_augment import augment_data
 
 from ubenwa_prepare import read_audio_ubenwa
 
@@ -47,17 +46,6 @@ class VADBrain(sb.Brain):
         wavs, lens = batch.signal
         targets, lens_targ = batch.target
         self.targets = targets
-
-        # if stage == sb.Stage.TRAIN:
-        #    wavs, targets, lens = augment_data(
-        #        self.noise_datasets,
-        #        self.speech_datasets,
-        #        wavs,
-        #        targets,
-        #        lens_targ,
-        #    )
-        #    self.lens = lens
-        #    self.targets = targets
 
         # From wav input to output binary prediciton
         feats = self.hparams.compute_features(wavs)
