@@ -18,13 +18,14 @@ Authors
 # import json
 import logging
 import torchaudio
+import os
 
 # from collections import OrderedDict
 
 import deeplake
 from torch import from_numpy
 import sys
-sys.path.insert(1, '/Users/sajjadabdoli/Documents/Ubenwa/speechbrain/recipes/LibriParty/VAD')
+sys.path.insert(1, '/home/sajjadabdoli/speechbrain/recipes/LibriParty/VAD')
 
 # import json
 
@@ -154,15 +155,23 @@ def read_audio_ubenwa(ds: deeplake.Dataset, record):
 
     """
     # filter based on the rec_id
-    list_of_rec_ids = ds[:].record_id.data()["value"]
-    rec_index = list_of_rec_ids.index(str(record["rec_id"]))
-    sample = ds[rec_index]
+
+    splited_rec_id=record["rec_id"].split("_")
+    
+    audio_file_path=os.path.join("/home/sajjadabdoli/data/audio16khz", splited_rec_id[0], '{}_{}_{}'.format(splited_rec_id[1] , splited_rec_id[2] , splited_rec_id[3])+".wav")
 
 
-    # sample = ds.filter(lambda sample: sample.record_id.data()['value'] == record["rec_id"], progressbar = False)
-    raw_audio = sample["raw_audio"].numpy().flatten()[record["start"]:record["stop"]]
-    audio = from_numpy(raw_audio).float() / 32768.0
-    return audio
+    if record["start"] != record["stop"]:
+        num_frames = record["stop"] - record["start"]
+        audio, _ = torchaudio.load(
+            audio_file_path, num_frames=num_frames, frame_offset=record["start"]
+        )
+
+    else:
+        raise Exception("record_start should be != record_stop")
+
+    audio = audio.transpose(0, 1)
+    return audio.squeeze(1)
 
 
 def prepare_ubenwa(

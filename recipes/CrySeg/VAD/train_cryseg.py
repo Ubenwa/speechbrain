@@ -126,7 +126,7 @@ class VADBrain(sb.Brain):
             )
 
 
-def dataio_prep(hparams):
+def dataio_prep(hparams, ds):
     "Creates the datasets and their data processing pipelines."
 
     # 1. Declarations:
@@ -144,12 +144,6 @@ def dataio_prep(hparams):
         replacements={"data_root": data_folder},
     )
 
-    ds = deeplake.load(
-        hparams["dataset_path"] + "deeplake/",
-        read_only=True,
-        memory_cache_size=8192,
-        local_cache_size=20480,
-    )
 
     # 2. Define audio pipeline:
     @sb.utils.data_pipeline.takes("record")
@@ -162,7 +156,6 @@ def dataio_prep(hparams):
     @sb.utils.data_pipeline.takes("cry")
     @sb.utils.data_pipeline.provides("target")
     def vad_targets(cry, hparams=hparams):
-        print()
         boundaries = (
             [
                 (
@@ -232,8 +225,15 @@ if __name__ == "__main__":
         },
     )
 
+    ds = deeplake.load(
+        hparams["dataset_path"] + "deeplake/",
+        read_only=True,
+        memory_cache_size=8192,
+        local_cache_size=20480,
+    )
+
     # Dataset IO prep: creating Dataset objects
-    train_data, valid_data, test_data = dataio_prep(hparams)
+    train_data, valid_data, test_data = dataio_prep(hparams, ds)
 
     # Trainer initialization
     vad_brain = VADBrain(

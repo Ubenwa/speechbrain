@@ -15,13 +15,13 @@
 # Seed and output folders
 seed: 1986
 __set_seed: !apply:torch.manual_seed [!ref <seed>]
-output_folder: !ref /Users/sajjadabdoli/Documents/Ubenwa/speechbrain/recipes/CrySeg/results/VAD_CRDNN/<seed>
+output_folder: !ref /home/sajjadabdoli/speechbrain/recipes/CrySeg/results/VAD_CRDNN/<seed>
 save_folder: !ref <output_folder>/save
 train_log: !ref <output_folder>/train_log.txt
 
 # LibriParty (main data)
-data_folder: /Users/sajjadabdoli/Documents/Ubenwa/data/ub-processed/seg-191101-230303 # e.g. /path/to/LibriParty
-dataset_path: /Users/sajjadabdoli/Documents/Ubenwa/data/ub-processed/seg-191101-230303/
+data_folder: /home/sajjadabdoli/data/ub-processed/seg-191101-230303/ # e.g. /path/to/LibriParty
+dataset_path: /home/sajjadabdoli/data/ub-processed/seg-191101-230303/
 
 # Additional data (for augmentation)
 #open_rir_folder: !ref <data_folder> # where to store noisy +ris from open_rir
@@ -39,11 +39,11 @@ multilang_speech_csv: !ref <save_folder>/multilang_speech.csv
 skip_prep: False # Skip data preparation
 
 # Training parameters
-N_epochs: 100
+N_epochs: 50
 lr: 1.0
 lr_final: 0.1
-batch_size: 32
-example_length: 3 # in seconds
+batch_size: 16
+example_length: 3 #4 in seconds
 sample_rate: 16000
 time_resolution: 0.01 # in seconds
 train_dataloader_opts:
@@ -64,7 +64,7 @@ n_mels: 40
 # cnn_channels: (16, 16)
 # cnn_kernelsize: (3, 3)
 rnn_layers: 1
-rnn_neurons: 10
+rnn_neurons: 5
 # rnn_bidirectional: True
 # dnn_blocks: 1
 dnn_neurons: 16
