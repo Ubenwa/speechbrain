@@ -2027,9 +2027,12 @@ class VAD(Pretrained):
              one from 1.0 to 1.5 seconds and another from 5.0 to 6.0 seconds).
         """
 
+        print ("AUDIO_FILE",audio_file)
+
         # Fetch audio file from web if not local
         source, fl = split_path(audio_file)
         audio_file = fetch(fl, source=source)
+
 
         # Computing speech vs non speech probabilities
         prob_chunks = self.get_speech_prob_file(
