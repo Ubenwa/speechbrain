@@ -1597,7 +1597,9 @@ class VAD(Pretrained):
             if last_end != begin_value:
                 cnt_seg = cnt_seg + 1
                 print_str = (
-                    "segment_%03d " + value_format + value_format + "NON_SPEECH"
+                    "segment_%03d " + value_format + value_format + "
+                    
+                    "
                 )
                 if print_boundaries:
                     print(print_str % (cnt_seg, last_end, begin_value))
@@ -1605,7 +1607,7 @@ class VAD(Pretrained):
                     f.write(print_str % (cnt_seg, last_end, begin_value) + "\n")
 
             cnt_seg = cnt_seg + 1
-            print_str = "segment_%03d " + value_format + value_format + "SPEECH"
+            print_str = "segment_%03d " + value_format + value_format + "CRY"
             if print_boundaries:
                 print(print_str % (cnt_seg, begin_value, end_value))
             if save_path is not None:
@@ -1618,7 +1620,7 @@ class VAD(Pretrained):
             if last_end < audio_len:
                 cnt_seg = cnt_seg + 1
                 print_str = (
-                    "segment_%03d " + value_format + value_format + "NON_SPEECH"
+                    "segment_%03d " + value_format + value_format + "NON_CRY"
                 )
                 if print_boundaries:
                     print(print_str % (cnt_seg, end_value, audio_len))
